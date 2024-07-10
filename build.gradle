@@ -3,8 +3,13 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
+
     // Adds the Kotlin Gradle plugin
     id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+
+//    id 'org.spongepowered' version "{mixin_version}"
     // OPTIONAL Kotlin Serialization plugin
     //id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
 }
@@ -104,6 +109,12 @@ dependencies {
     minecraft "net.minecraftforge:forge:$minecraft_version-$forge_version"
 
     implementation "thedarkcolour:kotlinforforge:$kff_version"
+
+    implementation(fg.deobf("team.lodestar.lodestone:lodestone:${minecraft_version}-${lodestone_version}"))
+}
+
+mixin {
+    // MixinGradle Settings
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -143,6 +154,27 @@ jar {
         ])
     }
 }
+
+//configurations {
+//    lodestoneOnly
+//}
+//
+//dependencies {
+//    // Define the specific dependency in the custom configuration
+//    lodestoneOnly fg.deobf("team.lodestar.lodestone:lodestone:${minecraft_version}-${lodestone_version}")
+//}
+//
+//shadowJar {
+//    archiveBaseName.set("${mod_id}-shadow")
+//    archiveVersion.set(version)
+//    mergeServiceFiles()
+//
+//    // Use the custom configuration for the shadowJar task
+//    configurations = [project.configurations.lodestoneOnly]
+//
+//    // Optional: Relocate the included dependency to avoid any potential conflicts.
+////    relocate 'team.lodestar', 'shadowed.team.lodestar'
+//}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
