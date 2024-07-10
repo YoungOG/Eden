@@ -102,11 +102,19 @@ repositories {
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
         content { includeGroup "thedarkcolour" }
     }
+
+    maven {
+        name 'Curios maven'
+        url = "https://maven.theillusivec4.top/"
+    }
+    maven { url = 'https://maven.blamejared.com/' }
 }
 
 dependencies {
     // Use the latest version of Minecraft Forge
-    minecraft "net.minecraftforge:forge:$minecraft_version-$forge_version"
+    minecraft("net.minecraftforge:forge:$minecraft_version-$forge_version")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation "thedarkcolour:kotlinforforge:$kff_version"
 
