@@ -32,6 +32,7 @@ class MeteorRenderer(context: EntityRendererProvider.Context) : EntityRenderer<M
             val y = entity.y + (direction.y / 10.0 * i)
             val z = entity.z + (direction.z / 10.0 * i)
 
+            //Orange-ish
             WorldParticleBuilder.create(LodestoneParticleRegistry.SMOKE_PARTICLE)
                 .setColorData(
                     ColorParticleData.create(1.0f, 0.7f, 0.1f, 0.8f, 0.2f, 0.0f)
