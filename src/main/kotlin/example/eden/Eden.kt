@@ -2,8 +2,12 @@ package example.eden
 
 import example.eden.Eden.LOGGER
 import example.eden.entities.projectiles.MeteorRenderer
+import example.eden.particles.ModParticles
 import net.minecraft.client.Minecraft
+import net.minecraft.client.particle.ParticleRenderType
 import net.minecraft.client.renderer.entity.EntityRenderers
+import net.minecraft.world.item.Items
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -15,6 +19,15 @@ import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import team.lodestar.lodestone.registry.common.particle.LodestoneParticleRegistry
+import team.lodestar.lodestone.systems.easing.Easing
+import team.lodestar.lodestone.systems.particle.builder.WorldParticleBuilder
+import team.lodestar.lodestone.systems.particle.data.GenericParticleData
+import team.lodestar.lodestone.systems.particle.data.color.ColorParticleData
+import team.lodestar.lodestone.systems.particle.data.spin.SpinParticleData
+import team.lodestar.lodestone.systems.particle.render_types.LodestoneWorldParticleRenderType
+import team.lodestar.lodestone.systems.particle.world.behaviors.components.DirectionalBehaviorComponent
+import team.lodestar.lodestone.systems.particle.world.behaviors.components.LodestoneBehaviorComponent
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import thedarkcolour.kotlinforforge.forge.runForDist
 
@@ -40,6 +53,7 @@ object Eden {
         // Register the KDeferredRegister to the mod-specific event bus
 //        ModBlocks.REGISTRY.register(MOD_BUS)
         ModEntities.ENTITY_REGISTRY.register(MOD_BUS)
+        ModParticles.PARTICLES.register(MOD_BUS)
 
         val obj = runForDist(
             clientTarget = {
@@ -78,24 +92,48 @@ object Eden {
 
     @SubscribeEvent
     fun onUseStick(event: PlayerInteractEvent) {
-        println("Player interacted with a stick!")
 
-        if (event.level.isClientSide)
-            return
+//        if (event.level.isClientSide)
+//            return
+//
+//        Items.STICK
+        val item = event.entity.mainHandItem.item
+        val entity = event.entity
 
-        val ball = ModEntities.CUSTOM_FIREBALL.create(event.level) ?: throw Exception("WTF IS THIS")
+        if (item == Items.STICK) {
 
-        ball.remainingFireTicks = -1
-        ball.xPower = event.entity.lookAngle.x * 1.15
-        ball.yPower = event.entity.lookAngle.y * 1.15
-        ball.zPower = event.entity.lookAngle.z * 1.15
+            val ball = ModEntities.CUSTOM_FIREBALL.create(event.level) ?: throw Exception("WTF IS THIS")
+
+            ball.remainingFireTicks = -1
+            ball.xPower = event.entity.lookAngle.x * 1.15
+            ball.yPower = event.entity.lookAngle.y * 1.15
+            ball.zPower = event.entity.lookAngle.z * 1.15
 //        ball.yPower = -2.0
 //        ball.zPower = 0.1
 
-        ball.moveTo(event.entity.x, event.entity.y - 2, event.entity.z)
-        ball.deltaMovement = event.entity.lookAngle
+            ball.moveTo(event.entity.x, event.entity.y - 2, event.entity.z)
+            ball.deltaMovement = event.entity.lookAngle
 
-        event.level.addFreshEntity(ball)
+            event.level.addFreshEntity(ball)
+        } else if (item == Items.APPLE) {
+            WorldParticleBuilder.create(ModParticles.RUNE)
+                .setColorData(ColorParticleData.create(1.0f, 0.0f, 0.0f).build())
+                .setLifetime(100)
+                .setSpinData(SpinParticleData.create(0.02f).build())
+//                .disableCull()
+//                .enableNoClip()
+                .setBehavior(DirectionalBehaviorComponent(Vec3(0.0, -1.0, 0.0)))
+                .setScaleData(
+                    GenericParticleData.create(5.0f)
+                        .build()
+                )
+                .setRenderType(LodestoneWorldParticleRenderType.LUMITRANSPARENT)
+                .setTransparencyData(
+                    GenericParticleData.create(1.0f)
+                        .build()
+                )
+                .spawn(entity.level(), entity.x, entity.y + 0.01, entity.z)
+        }
     }
 }
 
@@ -109,5 +147,7 @@ object ClientStuff {
         EntityRenderers.register(ModEntities.CUSTOM_FIREBALL) {
             MeteorRenderer(it)
         }
+
+
     }
 }
